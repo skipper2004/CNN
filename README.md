@@ -25,7 +25,7 @@ $ python3 main.py
 
 **Input:**
 
-![]()
+![](https://raw.githubusercontent.com/skipper2004/CNN/main/images/input1.bmp)
 
 **Output:**
 
