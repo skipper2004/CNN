@@ -29,7 +29,7 @@ $ python3 main.py
 
 **Output:**
 
-![]()
+![](https://raw.githubusercontent.com/skipper2004/CNN/main/images/test.png)
 
 ## Usage
 
