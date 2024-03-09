@@ -4,13 +4,7 @@
 
 This python library is the implementation of CNN for the application of **Image Processing**.
 
-**Note**: The library has been **cited** in the research published on [Using Python and Julia for Efficient Implementation of Natural Computing and Complexity Related Algorithms](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7168488), look for the reference #19 in the references section. I'm glad that this library could be of help to the community.
-
 **Note**: Cellular neural network (CNN) must not be confused with completely different convolutional neural network (ConvNet).
-
-![alt text](images/blockdiagram.png "CNN Architecture")
-
-As shown in the above diagram, imagine a control system with a feedback loop. f(x) is the piece-wise linear sigmoid function. The control (template B) and the feedback (template A) templates (coefficients) are configurable and controls the output of the system. Significant research had been done in determining the templates for common image processing techniques, these templates are published in this [Template Library](http://cnn-technology.itk.ppke.hu/Template_library_v4.0alpha1.pdf).
 
 ## Dependencies
 
@@ -22,7 +16,6 @@ Pillow: 3.3.1
 Scipy: 0.18.0
 Numpy: 1.11.1 + mkl
 ```
-Note: Scipy and Numpy can be installed on a Windows machines using binaries provided over [here](http://www.lfd.uci.edu/%7Egohlke/pythonlibs).
 
 ## Example
 
