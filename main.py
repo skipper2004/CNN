@@ -17,7 +17,6 @@ def main():
         cnn.cornerDetection(input_img, output_img)
     except Exception as f:
         print(f"File {input_img} does not exist. Error:", f)
-        return
 
     # Uploading images
     img1 = cv2.imread(output_img, cv2.IMREAD_GRAYSCALE)
