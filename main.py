@@ -5,46 +5,46 @@ import cv2
 
 
 def main():
-    # Initialize object
+    # Инициализация объекта
     cnn = PyCNN()
 
-    input_img = "images/" + input("Name image: ").strip()
+    input_img = "images/" + input("Введите название изображения: ").strip()
 
     output_img = 'images/output.png'
 
     try:
-        # Perform respective image processing techniques on the given image
+        # Выполнение соответствующих техник обработки изображения для данного изображения
         cnn.cornerDetection(input_img, output_img)
     except Exception as f:
-        print(f"File {input_img} does not exist. Error:", f)
+        print(f"Файл {input_img} не существует. Ошибка:", f)
 
-    # Uploading images
+    # Загрузка изображений
     img1 = cv2.imread(output_img, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(input_img)
 
-    # Adaptive binarization of the first image
+    # Адаптивная бинаризация первого изображения
     thresh = cv2.adaptiveThreshold(img1, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 10)
 
-    # Contour search
+    # Поиск контуров
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Creating a copy of the second image
+    # Создание копии второго изображения
     overlay = img2.copy()
 
-    # Determining the zoom factor for the radius of the circles
+    # Определение коэффициента масштабирования для радиуса окружностей
     fixed_radius = int(5 * min(img2.shape[0], img2.shape[1]) / 256)
 
-    # The outline of the black elements in a circle in the second image
+    # Обводка чёрных элементов окружностью на втором изображении
     for contour in contours:
         (x, y), _ = cv2.minEnclosingCircle(contour)
         center = (int(x), int(y))
         cv2.circle(overlay, center, fixed_radius, (0, 0, 255), 3)
 
-    # We overlay the processed image on top of the second one
+    # Наложение обработанного изображения поверх второго
     result = cv2.addWeighted(overlay, 0.5, img2, 0.5, 0)
 
-    # Displaying the result
-    cv2.imshow('Result', result)
+    # Вывод результата
+    cv2.imshow('Результат', result)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
