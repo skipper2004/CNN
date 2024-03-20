@@ -9,110 +9,105 @@ import os.path
 import warnings
 from skimage.filters import threshold_otsu
 
-
 SUPPORTED_FILETYPES = (
     'jpeg', 'jpg', 'png', 'tiff', 'gif', 'bmp',
 )
 
-warnings.filterwarnings('ignore')  # Ignore trivial warnings
+warnings.filterwarnings('ignore')  # Игнорировать незначительные предупреждения
 
 
 class PyCNN:
-    """Image Processing with Cellular Neural Networks (CNN).
+    """Обработка изображений с помощью ячеистых нейронных сетей (CNN).
 
-    Cellular Neural Networks (CNN) are a parallel computing paradigm that was
-    first proposed in 1988. Cellular neural networks are similar to neural
-    networks, with the difference that communication is allowed only between
-    neighboring units. Image Processing is one of its applications. CNN
-    processors were designed to perform image processing; specifically, the
-    original application of CNN processors was to perform real-time ultra-high
-    frame-rate (>10,000 frame/s) processing unachievable by digital processors.
+    Ячеистые нейронные сети (CNN) - это парадигма параллельных вычислений,
+    впервые предложенная в 1988 году. Ячеистые нейронные сети похожи на
+    нейронные сети, но отличаются тем, что коммуникация разрешена только между
+    соседними элементами. Обработка изображений - одно из их применений.
 
-    This python library is the implementation of CNN for the application of
-    Image Processing.
+    Эта библиотека Python является реализацией CNN для применения в
+    обработке изображений.
 
-
-    Attributes:
-        n (int): Height of the image.
-        m (int): Width of the image.
+    Атрибуты:
+        n (int): Высота изображения.
+        m (int): Ширина изображения.
     """
 
     def __init__(self):
-        """Sets the initial class attributes m (width) and n (height)."""
-        self.m = 0  # width (number of columns)
-        self.n = 0  # height (number of rows)
+        """Устанавливает начальные атрибуты класса m (ширина) и n (высота)."""
+        self.m = 0  # ширина (количество столбцов)
+        self.n = 0  # высота (количество строк)
 
     def f(self, t, x, Ib, Bu, tempA):
-        """Computes the derivative of x at t.
+        """Вычисляет производную x в момент времени t.
 
-        Args:
-            x: The input.
-            Ib (float): System bias.
-            Bu: Convolution of control template with input.
-            tempA (:obj:`list` of :obj:`list`of :obj:`float`): Feedback
-                template.
+        Аргументы:
+            x: Входные данные.
+            Ib (float): Системный сдвиг.
+            Bu: Свертка шаблона управления с входом.
+            tempA (:obj:`list` of :obj:`list`of :obj:`float`): Обратная
+                связь шаблона.
         """
         x = x.reshape((self.n, self.m))
         dx = -x + Ib + Bu + sig.convolve2d(self.cnn(x), tempA, 'same')
         return dx.reshape(self.m * self.n)
 
     def cnn(self, x):
-        """Piece-wise linear sigmoid function.
+        """Кусочно-линейная сигмоидная функция.
 
-        Args:
-            x : Input to the piece-wise linear sigmoid function.
+        Аргументы:
+            x : Вход для кусочно-линейной сигмоидной функции.
         """
         return 0.5 * (abs(x + 1) - abs(x - 1))
 
     def validate(self, inputLocation):
-        """Checks if a string path exists or is from a supported file type.
+        """Проверяет, существует ли строка пути или поддерживается ли тип файла.
 
-        Args:
-            inputLocation (str): A string with the path to the image.
+        Аргументы:
+            inputLocation (str): Строка с путем к изображению.
 
-        Raises:
-            IOError: If `inputLocation` does not exist or is not a file.
-            Exception: If file type is not supported.
+        Вызывает:
+            IOError: Если `inputLocation` не существует или не является файлом.
+            Exception: Если тип файла не поддерживается.
         """
         _, ext = os.path.splitext(inputLocation)
         ext = ext.lstrip('.').lower()
         if not os.path.exists(inputLocation):
-            raise IOError('File {} does not exist.'.format(inputLocation))
+            raise IOError('Файл {} не существует.'.format(inputLocation))
         elif not os.path.isfile(inputLocation):
-            raise IOError('Path {} is not a file.'.format(inputLocation))
+            raise IOError('Путь {} не является файлом.'.format(inputLocation))
         elif ext not in SUPPORTED_FILETYPES:
             raise Exception(
-                '{} file type is not supported. Supported: {}'.format(
+                'Тип файла {} не поддерживается. Поддерживаемые типы: {}'.format(
                     ext, ', '.join(SUPPORTED_FILETYPES)
                 )
             )
 
-    # tempA: feedback template, tempB: control template
+    # tempA: обратная связь шаблона, tempB: шаблон управления
     def imageProcessing(self, inputLocation, outputLocation,
                         tempA, tempB, initialCondition, Ib, t):
-        """Process the image with the input arguments.
+        """Обрабатывает изображение с использованием входных аргументов.
 
-        Args:
-            inputLocation (str): The string path for the input image.
-            outputLocation (str): The string path for the output processed
-                image.
-            tempA (:obj:`list` of :obj:`list`of :obj:`float`): Feedback
-                template.
-            tempB (:obj:`list` of :obj:`list`of :obj:`float`): Control
-                template.
-            initialCondition (float): The initial state.
-            Ib (float): System bias.
-            t (numpy.ndarray): A numpy array with evenly spaced numbers
-                representing time points.
+        Аргументы:
+            inputLocation (str): Путь к исходному изображению в виде строки.
+            outputLocation (str): Путь к обработанному изображению в виде строки.
+            tempA (:obj:`list` of :obj:`list`of :obj:`float`): Шаблон обратной связи.
+            tempB (:obj:`list` of :obj:`list`of :obj:`float`): Шаблон управления.
+            initialCondition (float): Начальное состояние.
+            Ib (float): Системный сдвиг.
+            t (numpy.ndarray): Массив numpy с равномерно распределенными числами,
+                представляющими моменты времени.
         """
-        gray = img.open(inputLocation).convert('L')  # Конвертация в градации серого
+
+        # Конвертация в градации серого
+        gray = img.open(inputLocation).convert('L')
         self.m, self.n = gray.size
         u = np.array(gray)
 
-        # Вычисление динамического порога для преобразования в черно-белое изображение
-        # на основе среднего значения интенсивности пикселей
-        threshold = u.mean()
-        u = np.where(u > threshold, 255, 0)  # Применение порога для получения черно-белого изображения
+        # Вычисление динамического порога для бинаризации изображения
+        threshold = threshold_otsu(u)
+
+        # Применение порога для получения бинарного изображения
+        u = np.where(u > threshold, 255, 0)
 
         z0 = u * initialCondition
         Bu = sig.convolve2d(u, tempB, 'same')
@@ -133,18 +128,12 @@ class PyCNN:
         out_l = z[:].reshape((self.n, self.m))
         out_l = out_l / (255.0)
         out_l = np.uint8(np.round(out_l * 255))
-        # The direct vectorization was causing problems on Raspberry Pi.
-        # In case anyone face a similar issue, use the below
-        # loops rather than the above direct vectorization.
-        # for i in range(out_l.shape[0]):
-        #     for j in range(out_l.shape[1]):
-        #         out_l[i][j] = np.uint8(round(out_l[i][j] * 255))
         out_l = img.fromarray(out_l).convert('RGB')
         out_l.save(outputLocation)
 
-    # general image processing for given templates
+    # Общая обработка изображений для заданных шаблонов
     def generalTemplates(self,
-                         name='Image processing',
+                         name='Обработка изображений',
                          inputLocation='',
                          outputLocation='output.png',
                          tempA_A=[[0.0, 0.0, 0.0],
@@ -156,57 +145,53 @@ class PyCNN:
                          initialCondition=0.0,
                          Ib_b=0.0,
                          t=np.linspace(0, 10.0, num=2)):
-        """Validate and process the image with the input arguments.
+        """Проверка и обработка изображения с использованием входных аргументов.
 
-        Args:
-            name (str): The name of the template.
-            inputLocation (str): The string path for the input image.
-            outputLocation (str): The string path for the output processed
-                image.
-            tempA_A (:obj:`list` of :obj:`list`of :obj:`float`): Feedback
-                template.
-            tempB_B (:obj:`list` of :obj:`list`of :obj:`float`): Control
-                template.
-            initialCondition (float): The initial state.
-            Ib_b (float): System bias.
-            t (numpy.ndarray): A numpy array with evenly spaced numbers
-                representing time points.
+        Аргументы:
+            name (str): Название шаблона.
+            inputLocation (str): Путь к исходному изображению в виде строки.
+            outputLocation (str): Путь к обработанному изображению в виде строки.
+            tempA_A (:obj:`list` of :obj:`list`of :obj:`float`): Шаблон обратной связи.
+            tempB_B (:obj:`list` of :obj:`list`of :obj:`float`): Шаблон управления.
+            initialCondition (float): Начальное состояние.
+            Ib_b (float): Системный сдвиг.
+            t (numpy.ndarray): Массив numpy с равномерно распределенными числами,
+                представляющими моменты времени.
         """
         self.validate(inputLocation)
-        print(name, 'initialized.')
+        print(f'{name} инициализирована.')
         self.imageProcessing(inputLocation,
-                             outputLocation,
-                             np.array(tempA_A),
-                             np.array(tempB_B),
-                             initialCondition,
-                             Ib_b,
-                             t)
-        print('Processing on image %s is complete' % (inputLocation))
+        outputLocation,
+        np.array(tempA_A),
+        np.array(tempB_B),
+        initialCondition,
+        Ib_b,
+        t)
+        print(f'Обработка изображения {inputLocation} завершена.')
 
     def cornerDetection(self, inputLocation='', outputLocation='output.png'):
-        """Performs Corner Detection on the input image.
+        """Выполняет обнаружение углов на входном изображении.
 
-        The output is a binary image where black pixels represent the convex
-        corners of objects in the input image.
+        На выходе получается бинарное изображение, где черные пиксели представляют
+        выпуклые углы объектов на входном изображении.
 
         A = [[0.0 0.0 0.0],
              [0.0 1.0 0.0],
              [0.0 0.0 0.0]]
 
-        B = [[−1.0 −1.0 −1.0],
-             [−1.0 4.0 −1.0],
-             [−1.0 −1.0 −1.0]]
+        B = [[-1.0 -1.0 -1.0],
+             [-1.0 4.0 -1.0],
+             [-1.0 -1.0 -1.0]]
 
-        z = −5.0
+        z = -5.0
 
-        Initial state = 0.0
+        Начальное состояние = 0.0
 
-        Args:
-            inputLocation (str): The string path for the input image.
-            outputLocation (str): The string path for the output processed
-                image.
+        Аргументы:
+            inputLocation (str): Путь к входному изображению в виде строки.
+            outputLocation (str): Путь к обработанному изображению в виде строки.
         """
-        name = 'Corner detection'
+        name = 'Обнаружение углов'
         tempA = [[0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]]
         tempB = [[-1.0, -1.0, -1.0], [-1.0, 4.0, -1.0], [-1.0, -1.0, -1.0]]
         Ib = -5.0
@@ -221,3 +206,4 @@ class PyCNN:
             initialCondition,
             Ib,
             t)
+
